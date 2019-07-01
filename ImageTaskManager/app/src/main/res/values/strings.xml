@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ImageTaskManager</string>
+    <string name="task_card_title">Title : %1$s</string>
+    <string name="task_card_deadline">期限 : %1$d / %2$d %3$d : %4$d</string>
 </resources>
