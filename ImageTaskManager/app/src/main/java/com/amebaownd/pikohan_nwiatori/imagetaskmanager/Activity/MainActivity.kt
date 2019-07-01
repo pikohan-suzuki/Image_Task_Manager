@@ -1,14 +1,12 @@
-package com.amebaownd.pikohan_nwiatori.imagetaskmanager
+package com.amebaownd.pikohan_nwiatori.imagetaskmanager.Activity
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
-import android.media.Image
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
+import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -20,7 +18,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val buttons: Array<ImageButton> = arrayOf(findViewById(R.id.add_tag_button),findViewById(R.id.add_memo_button),findViewById(R.id.add_task_button))
+        val buttons: Array<ImageButton> = arrayOf(findViewById(R.id.add_tag_button),findViewById(
+            R.id.add_memo_button
+        ),findViewById(R.id.add_task_button))
         openButton =findViewById(R.id.open_add_menu_button)
         openButton.setOnClickListener {
             if(isOpen)
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openMenu(buttons:Array<ImageButton>){
         val radius = 300f
-        val time: Long =300
+        val time: Long =200
         val array = Array(buttons.size,{ arrayOfNulls<PropertyValuesHolder>(2)})
         array[0][0] = PropertyValuesHolder.ofFloat("translationX", 0f, radius * cos(PI* 90 / 180).toFloat())
         array[0][1] = PropertyValuesHolder.ofFloat("translationY", 0f, -radius * sin(PI * 90 / 180).toFloat())
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun closeMenu(buttons:Array<ImageButton>){
         val radius = 300f
-        val time: Long =300
+        val time: Long =200
         val array = Array(buttons.size,{ arrayOfNulls<PropertyValuesHolder>(2)})
         array[0][0] = PropertyValuesHolder.ofFloat("translationX",  radius * cos(PI* 90 / 180).toFloat(),0f)
         array[0][1] = PropertyValuesHolder.ofFloat("translationY", -radius * sin(PI * 90 / 180).toFloat(),0f)
