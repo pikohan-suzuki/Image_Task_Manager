@@ -1,4 +1,16 @@
 package com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment
 
-class MemoListFragment {
+import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
+
+class MemoListFragent(): Fragment(){
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.fragment_memo_list,container,false)
+        return view
+    }
 }
