@@ -19,6 +19,19 @@
         <activity android:name=".Activity.AddScheduleActivity">
 
         </activity>
+
+        <activity android:name=".Activity.AddTagActivity">
+
+        </activity>
+
+        <activity android:name=".Activity.MemoInfoActivity">
+
+        </activity>
+
+        <activity android:name=".Activity.TaskInfoActivity">
+
+        </activity>
     </application>
+
 
 </manifest>
