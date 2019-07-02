@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.AddMemoFragment
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.AddTaskFragment
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.MemoListFragent
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.TaskListFragment
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 

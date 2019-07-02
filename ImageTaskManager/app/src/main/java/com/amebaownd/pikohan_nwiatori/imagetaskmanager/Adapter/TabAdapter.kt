@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.MemoListFragent
+import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.MemoListFragment
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.TaskListFragment
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 
@@ -23,7 +23,7 @@ class TabAdapter(fm: FragmentManager, private val context: Context) : FragmentSt
             0->
                 return TaskListFragment()
             1->
-                return MemoListFragent()
+                return MemoListFragment()
         }
         return TaskListFragment()
     }

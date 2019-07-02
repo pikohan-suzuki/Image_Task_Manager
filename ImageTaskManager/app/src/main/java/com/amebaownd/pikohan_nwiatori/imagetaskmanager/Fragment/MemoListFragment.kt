@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 
-class MemoListFragent(): Fragment(){
+class MemoListFragment(): Fragment(){
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_memo_list,container,false)
