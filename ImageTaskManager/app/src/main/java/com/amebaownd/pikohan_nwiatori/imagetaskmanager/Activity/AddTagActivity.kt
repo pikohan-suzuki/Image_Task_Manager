@@ -29,13 +29,8 @@ class AddTagActivity : AppCompatActivity() {
 
         db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database").build()
 
-        addImageButton = findViewById(R.id.add_tag_add_imageButton)
-        addImageButton.setOnClickListener(onClickListener(addImageButton))
-        addEditText = findViewById(R.id.add_tag_add_editText)
-        addEditText.setOnClickListener(onClickListener(addEditText))
-        recyclerView = findViewById(R.id.add_tag_recyclerView)
-        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        recyclerView.layoutManager=layoutManager
+        setViews()
+
         db.tagsDao().getAllTags().observe(this, Observer<List<Tags>> {
             recyclerView.adapter = TagRecyclerViewAdapter(this, it)
         })
@@ -79,5 +74,15 @@ class AddTagActivity : AppCompatActivity() {
             }
         }
         return View.OnClickListener { }
+    }
+
+    private fun setViews(){
+        addImageButton = findViewById(R.id.add_tag_add_imageButton)
+        addImageButton.setOnClickListener(onClickListener(addImageButton))
+        addEditText = findViewById(R.id.add_tag_add_editText)
+        addEditText.setOnClickListener(onClickListener(addEditText))
+        recyclerView = findViewById(R.id.add_tag_recyclerView)
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView.layoutManager=layoutManager
     }
 }
