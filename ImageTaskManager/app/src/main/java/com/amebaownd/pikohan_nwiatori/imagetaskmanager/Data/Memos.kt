@@ -7,8 +7,8 @@ import java.sql.Time
 @Entity
 data class Memos constructor(
     @PrimaryKey(autoGenerate = true)
-    val memoId : Long,
-    val title :String,
-    val created: Long,
-    val memo :String
+    var memoId : Long=0,
+    var title :String="",
+    var created: Long=0,
+    var memo :String=""
 )
