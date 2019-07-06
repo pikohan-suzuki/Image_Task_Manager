@@ -79,7 +79,6 @@ class MainActivity : AppCompatActivity() {
         val adapter = TabAdapter(supportFragmentManager, this)
         val viewPager = findViewById<ViewPager>(R.id.viewPager)
         viewPager.adapter = adapter
-        val tabLayout = findViewById<TabLayout>()
         tabLayout.setupWithViewPager(viewPager)
         for (i in 0 until adapter.count) {
             val tab = tabLayout.getTabAt(i)!!
