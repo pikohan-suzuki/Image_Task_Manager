@@ -23,8 +23,11 @@ class TagRecyclerViewAdapter(context: Context, private val tags:List<Tags>?) : R
 
     override fun onBindViewHolder(viewHolder: TagListViewHolder, position: Int) {
         viewHolder.name.text = Editable.Factory.getInstance().newEditable(tags!![position].name)
+        viewHolder.name.isEnabled = false
         viewHolder.editImageButton.setOnClickListener{
-            viewHolder.name.background = ColorDrawable(R.drawable.abc_edit_text_material)
+            viewHolder.name.background = null
+            viewHolder.name.isEnabled=true
+            viewHolder.name.isFocusable=true
         }
         viewHolder.deleteEditText.setOnClickListener{
 
@@ -33,8 +36,8 @@ class TagRecyclerViewAdapter(context: Context, private val tags:List<Tags>?) : R
     }
 
     class TagListViewHolder(view:View) : RecyclerView.ViewHolder(view){
-        val name = view.findViewById<EditText>(R.id.tag_row_editText)
-        val editImageButton = view.findViewById<ImageButton>(R.id.tag_row_edit_imageButton)
-        val deleteEditText=view.findViewById<ImageButton>(R.id.tag_row_delete_imageButton)
+        val name = view.findViewById<EditText>(R.id.tag_row_editText)!!
+        val editImageButton = view.findViewById<ImageButton>(R.id.tag_row_edit_imageButton)!!
+        val deleteEditText=view.findViewById<ImageButton>(R.id.tag_row_delete_imageButton)!!
     }
 }
