@@ -24,19 +24,23 @@
         <activity android:name=".Activity.MainActivity">
 
         </activity>
-        <activity android:name=".Activity.AddScheduleActivity">
+        <activity android:name=".Activity.AddScheduleActivity"
+                  android:windowSoftInputMode="adjustPan">
 
         </activity>
 
-        <activity android:name=".Activity.AddTagActivity">
+        <activity android:name=".Activity.AddTagActivity"
+                  android:windowSoftInputMode="adjustPan">
 
         </activity>
 
-        <activity android:name=".Activity.MemoInfoActivity">
+        <activity android:name=".Activity.MemoInfoActivity"
+                  android:windowSoftInputMode="adjustPan">
 
         </activity>
 
-        <activity android:name=".Activity.TaskInfoActivity">
+        <activity android:name=".Activity.TaskInfoActivity"
+                  android:windowSoftInputMode="adjustPan">
 
         </activity>
     </application>
