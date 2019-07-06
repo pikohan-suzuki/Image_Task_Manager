@@ -11,10 +11,13 @@ interface TagsDao {
     @Query("SELECT * FROM Tags WHERE tagId=(:tagId)")
     fun getTagByTagId(tagId:Long):LiveData<Tags>
 
+    @Query("SELECT * FROM Tags WHERE name=(:name)")
+    fun getTagByName(name:String):LiveData<Tags>
+
     @Query("SELECT COUNT(*) FROM Tags WHERE name=(:name)")
     fun getCountByName(name:String):LiveData<Int>
 
-    @Query("SELECT * FROM Tags WHERE name LIKE (:key)")
+    @Query("SELECT * FROM Tags WHERE name LIKE (:key) ORDER BY name")
     fun getTagsByKey(key:String):LiveData<List<Tags>>
 
     @Insert(onConflict = OnConflictStrategy.ROLLBACK)
