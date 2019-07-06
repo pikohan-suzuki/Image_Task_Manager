@@ -17,8 +17,12 @@ interface MemosDao{
 
 
     @Transaction
-    @Query("SELECT * FROM Memos")
-    fun loadMemosAndMemoTags():LiveData<List<MemosAndMemoTags>>
+    @Query("SELECT * FROM Memos ORDER BY title")
+    fun loadMemosAndMemoTagsSortByTitle():LiveData<List<MemosAndMemoTags>>
+
+    @Transaction
+    @Query("SELECT * FROM Memos ORDER BY created")
+    fun loadMemosAndMemoTagsSortByCreated():LiveData<List<MemosAndMemoTags>>
 
     @Transaction
     @Query("SELECT * FROM Memos WHERE memoId=(:memoId)")
