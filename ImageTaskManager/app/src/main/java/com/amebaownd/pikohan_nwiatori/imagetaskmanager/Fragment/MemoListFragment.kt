@@ -9,14 +9,37 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.MemoRecyclerViewAdapter
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.AppDatabase
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 
-class MemoListFragment(): Fragment(){
+interface OnSpinnerItemSelected{
+    fun setSortedByCreatedRecyclerViewAdapter()
+    fun setSortedByTitleRecyclerViewAdapter()
+}
 
-    lateinit var recyclerView:RecyclerView
+class MemoListFragment(): Fragment(),OnSpinnerItemSelected{
+    override fun setSortedByCreatedRecyclerViewAdapter() {
+        db.memosDao().loadMemosAndMemoTagsSortByCreated().observe(viewLifecycleOwner, Observer {
+            val adapter = MemoRecyclerViewAdapter(view!!.context,it)
+            recyclerView.adapter=adapter
+        })
+    }
+
+    override fun setSortedByTitleRecyclerViewAdapter() {
+        db.memosDao().loadMemosAndMemoTagsSortByTitle().observe(viewLifecycleOwner, Observer {
+            val adapter = MemoRecyclerViewAdapter(view!!.context,it)
+            recyclerView.adapter=adapter
+        })
+    }
+
     lateinit var db :AppDatabase
+    lateinit var recyclerView:RecyclerView
+    lateinit var sortSpinner:Spinner
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_memo_list,container,false)
         return view
@@ -31,14 +54,40 @@ class MemoListFragment(): Fragment(){
     private fun setViews(){
         recyclerView = view!!.findViewById(R.id.memo_list_recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(view!!.context,LinearLayoutManager.VERTICAL,false)
-        setAdapter()
+        sortSpinner = view!!.findViewById(R.id.memo_list_sort_spinner)
+        setSpinnerAdapter()
+        val spinnerSelectedListener = SpinnerSelectedListener()
+        spinnerSelectedListener.setListener(this)
+        sortSpinner.onItemSelectedListener = spinnerSelectedListener
+
+        setSortedByCreatedRecyclerViewAdapter()
     }
 
-    private fun setAdapter(){
-        db.memosDao().loadMemosAndMemoTags().observe(viewLifecycleOwner, Observer {
-            val adapter = MemoRecyclerViewAdapter(view!!.context,it)
-            recyclerView.adapter=adapter
-        })
-
+    private fun setSpinnerAdapter(){
+        sortSpinner.adapter = ArrayAdapter(view!!.context,android.R.layout.simple_spinner_dropdown_item,arrayOf("作成日時でソート","タイトルでソート"))
     }
+
+
+    class SpinnerSelectedListener() :AdapterView.OnItemSelectedListener{
+        private var listener:OnSpinnerItemSelected?=null
+        override fun onNothingSelected(p0: AdapterView<*>?) {
+        }
+
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            when(position){
+                0->{
+                    if(listener!=null)
+                        listener!!.setSortedByCreatedRecyclerViewAdapter()
+                }
+                1->{
+                    if(listener!=null)
+                        listener!!.setSortedByTitleRecyclerViewAdapter()
+                }
+            }
+        }
+        fun setListener(listener:OnSpinnerItemSelected){
+            this.listener=listener
+        }
+    }
+
 }
