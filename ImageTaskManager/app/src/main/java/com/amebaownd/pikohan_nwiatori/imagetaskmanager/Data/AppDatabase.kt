@@ -12,7 +12,7 @@ import android.arch.persistence.room.RoomDatabase
     TaskImages::class,
     Tasks::class,
     TaskTags::class
-),version = 1)
+),version = 2)
 abstract class AppDatabase :RoomDatabase() {
     abstract fun imagesDao():ImagesDao
     abstract fun memoImagesDao():MemoImagesDao
