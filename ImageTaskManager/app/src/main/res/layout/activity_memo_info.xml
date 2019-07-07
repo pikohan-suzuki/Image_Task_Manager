@@ -34,18 +34,7 @@
                     app:layout_constraintStart_toStartOf="@+id/guideline14"
                     app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
                     android:id="@+id/memo_info_image_layout"
-                    app:layout_constraintHorizontal_bias="1.0">
-
-                <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/memo_info_add_image_imageButton"
-                        android:layout_marginBottom="8dp"
-                        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
-                        android:layout_marginStart="8dp" android:src="@drawable/ic_add_box_black_24dp"
-                        tools:src="@drawable/ic_add_box_black_24dp" android:background="#00ffffff"
-                        android:visibility="invisible"/>
-            </android.support.constraint.ConstraintLayout>
+                    app:layout_constraintHorizontal_bias="1.0"/>
             <EditText
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
