@@ -1,10 +1,7 @@
 package com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data
 
 import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Transaction
+import android.arch.persistence.room.*
 
 @Dao
 interface MemosDao{
@@ -34,5 +31,8 @@ interface MemosDao{
 
     @Insert
     fun insert(memos:Memos):Long
+
+    @Update
+    fun update(memos:Memos)
 
 }
