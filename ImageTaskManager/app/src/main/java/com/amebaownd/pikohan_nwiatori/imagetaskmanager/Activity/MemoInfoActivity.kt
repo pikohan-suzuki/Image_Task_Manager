@@ -33,7 +33,7 @@ import java.io.IOException
 import java.lang.Exception
 import kotlin.concurrent.thread
 
-class MemoInfoActivity : AppCompatActivity() {
+class MemoInfoActivity : AppCompatActivity(){
 
     private lateinit var db: AppDatabase
     private lateinit var inflater: LayoutInflater
@@ -46,7 +46,9 @@ class MemoInfoActivity : AppCompatActivity() {
     private lateinit var createdTextView: TextView
     private lateinit var memoEditText: EditText
     private lateinit var memoTextView: TextView
+
     private lateinit var tagLayout: FlexboxLayout
+    private lateinit var searchTagEditText:AutoCompleteTextView
     private lateinit var imagesLayout: ConstraintLayout
     private lateinit var addImageButton: ImageButton
 
@@ -67,21 +69,27 @@ class MemoInfoActivity : AppCompatActivity() {
 
         val memoId = intent.extras.getLong("memoId")
         val tagIdArray = intent.extras.getLongArray("tagIdList")
-        for (i in tagIdArray.indices)
-            tagIdList.add(tagIdArray[i])
+//        for (i in tagIdArray.indices)
+//            tagIdList.add(tagIdArray[i])
 
         inflater = LayoutInflater.from(this)
         db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database").build()
         setViews()
+        setSearchTagAdapter()
         setListener()
 
         db.memosDao().loadMemosAndMemoTagsByMemoId(memoId).observe(this, Observer {
-            memosAndMemoTags = it!!
-            setTitleAndMemo(it)
+                tagLayout.removeAllViews()
+                memosAndMemoTags = it!!
+                for (i in it.memoTags.indices) {
+                    tagIdList.add(it.memoTags[i].tagId)
+                    setTags(it.memoTags[i].tagId)
+                }
+                setTitleAndMemo(it)
         })
 
-        for (i in tagIdList!!.indices)
-            setTags(tagIdList[i])
+//        for (i in tagIdList!!.indices)
+//            setTags(tagIdList[i])
 
 
         db.memosDao().loadMemosAndMemoImagesByMemoId(memoId).observe(this, Observer {
@@ -100,6 +108,7 @@ class MemoInfoActivity : AppCompatActivity() {
         memoEditText = findViewById(R.id.memo_info_memo_editText)
         memoTextView = findViewById(R.id.memo_info_memo_textView)
         tagLayout = findViewById(R.id.memo_info_show_tags_flexboxLayout)
+        searchTagEditText=findViewById(R.id.memo_info_search_tags_editText)
         imagesLayout = findViewById(R.id.memo_info_image_layout)
         addImageButton = ImageButton(this)
         addImageButton.setImageResource(R.drawable.ic_add_box_black_24dp)
@@ -113,6 +122,20 @@ class MemoInfoActivity : AppCompatActivity() {
         editImageButton.setOnClickListener(onClickListener(editImageButton, false))
         doneImageButton.setOnClickListener(onClickListener(doneImageButton, false))
         addImageButton.setOnClickListener(onClickListener(addImageButton, false))
+        searchTagEditText.setOnItemClickListener { adapterView, view, position, id ->
+            db.tagsDao().getTagByName((view as TextView).text.toString()).observe(this, Observer {
+                if(!tagIdList.contains(it!!.tagId)) {
+                    tagIdList.add(it.tagId)
+                    setTags(it.tagId)
+                }
+            })
+        }
+    }
+
+    private fun setSearchTagAdapter(){
+        db.tagsDao().getAllTagsName().observe(this, Observer {
+            searchTagEditText.setAdapter(  ArrayAdapter(this,android.R.layout.simple_list_item_1,it))
+        })
     }
 
     private fun onClickListener(view: View, isTagView: Boolean): View.OnClickListener {
@@ -129,6 +152,7 @@ class MemoInfoActivity : AppCompatActivity() {
                     deleteButtonList.forEach { imageButton->
                         imageButton.visibility = View.VISIBLE
                     }
+                    searchTagEditText.visibility=View.VISIBLE
                     isEditMode = true
                 }
             }
@@ -146,6 +170,7 @@ class MemoInfoActivity : AppCompatActivity() {
                         deleteButtonList.forEach { imageButton ->
                             imageButton.visibility = View.INVISIBLE
                         }
+                        searchTagEditText.visibility=View.GONE
                         isEditMode = false
                     }
                 }
