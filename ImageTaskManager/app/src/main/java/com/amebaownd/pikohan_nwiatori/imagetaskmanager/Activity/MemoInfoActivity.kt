@@ -7,9 +7,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Build
@@ -19,16 +17,13 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
-import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewParent
 import android.widget.*
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.AppDatabase
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.Tags
+import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.*
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 import com.google.android.flexbox.FlexboxLayout
 import java.io.File
@@ -58,9 +53,12 @@ class MemoInfoActivity : AppCompatActivity() {
     private var imageIdList = mutableListOf<Int>()
     private var tagIdList = mutableListOf<Long>()
     private var tagViewIdList = mutableListOf<Int>()
-    private var deleteButtonIdList = mutableListOf<Int>()
+    private var deleteButtonList = mutableListOf<ImageButton>()
 
     private var isEditMode = false
+
+    lateinit var memosAndMemoTags: MemosAndMemoTags
+    lateinit var memosAndMemoImages: MemosAndMemoImages
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,101 +75,17 @@ class MemoInfoActivity : AppCompatActivity() {
         setListener()
 
         db.memosDao().loadMemosAndMemoTagsByMemoId(memoId).observe(this, Observer {
-            titleEditText.setText(it!!.memos.title)
-            titleTextView.text = it!!.memos.title
-            createdTextView.text = getString(
-                R.string.add_memo_created,
-                SimpleDateFormat("MM").format(it.memos.created).toInt(),
-                SimpleDateFormat("dd").format(it.memos.created).toInt(),
-                SimpleDateFormat("HH").format(it.memos.created).toInt(),
-                SimpleDateFormat("mm").format(it.memos.created).toInt()
-            )
-            memoEditText.setText(it.memos.memo)
-            memoTextView.text = it.memos.memo
+            memosAndMemoTags = it!!
+            setTitleAndMemo(it)
         })
 
-        for (i in tagIdList!!.indices) {
-            db.tagsDao().getTagByTagId(tagIdList!![i]).observe(this, Observer {
-                val tagView = inflater.inflate(R.layout.tag, tagLayout, false)
-                tagView.findViewById<TextView>(R.id.tag_textView).text = it!!.name
-                tagView.id = View.generateViewId()
-                tagViewIdList.add(tagView.id)
-                tagView.setOnClickListener(onClickListener(tagView, true))
-                tagLayout.addView(tagView)
-            })
-        }
+        for (i in tagIdList!!.indices)
+            setTags(tagIdList[i])
+
 
         db.memosDao().loadMemosAndMemoImagesByMemoId(memoId).observe(this, Observer {
-            for (i in it!!.memoImages.indices) {
-                val uri = Uri.parse(it.memoImages[i].uri)
-                imageUriList.add(it.memoImages[i].uri)
-                try {
-                    val path: String? = getPathFromUri(this, uri)
-                    val file = File(path)
-                    val inputStream = FileInputStream(file)
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    if (bitmap != null) {
-                        val imageView = ImageView(this)
-                        imageView.setImageBitmap(bitmap)
-                        imageView.id = View.generateViewId()
-                        imageIdList.add(imageView.id)
-                        imagesLayout.addView(imageView)
-                        val deleteImageButton = ImageButton(this)
-                        deleteImageButton.setImageResource(R.drawable.ic_delete_black_24dp)
-                        deleteImageButton.background=getDrawable(R.color.colorAlphaMax)
-                        deleteImageButton.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-                        deleteImageButton.id=View.generateViewId()
-                        deleteButtonIdList.add(deleteImageButton.id)
-                        deleteImageButton.visibility=View.INVISIBLE
-                        deleteImageButton.setOnClickListener(onClickListener(deleteImageButton,false))
-                        imagesLayout.addView(deleteImageButton)
-
-                        val constraintSet = ConstraintSet()
-                        constraintSet.clone(imagesLayout)
-                        if (imageIdList.size == 1)
-                            constraintSet.connect(
-                                imageView.id,
-                                ConstraintSet.TOP,
-                                ConstraintSet.PARENT_ID,
-                                ConstraintSet.TOP,
-                                50
-                            )
-                        else
-                            constraintSet.connect(
-                                imageView.id,
-                                ConstraintSet.TOP,
-                                imageIdList[imageIdList.lastIndex - 1],
-                                ConstraintSet.BOTTOM,
-                                50
-                            )
-                        constraintSet.connect(
-                            deleteImageButton.id,
-                            ConstraintSet.TOP,
-                            imageView.id,
-                            ConstraintSet.TOP,
-                            0
-                        )
-                        constraintSet.connect(
-                            deleteImageButton.id,
-                            ConstraintSet.LEFT,
-                            imageView.id,
-                            ConstraintSet.RIGHT,
-                            10
-                        )
-
-                        constraintSet.connect(
-                            addImageButton.id,
-                            ConstraintSet.TOP,
-                            imageIdList[imageIdList.lastIndex],
-                            ConstraintSet.BOTTOM,
-                            50
-                        )
-                        constraintSet.applyTo(imagesLayout)
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(this, e.printStackTrace().toString(), Toast.LENGTH_SHORT).show()
-                }
-            }
+            memosAndMemoImages = it!!
+            setImages(it)
         })
     }
 
@@ -186,13 +100,18 @@ class MemoInfoActivity : AppCompatActivity() {
         memoTextView = findViewById(R.id.memo_info_memo_textView)
         tagLayout = findViewById(R.id.memo_info_show_tags_flexboxLayout)
         imagesLayout = findViewById(R.id.memo_info_image_layout)
-        addImageButton = findViewById(R.id.memo_info_add_image_imageButton)
+        addImageButton = ImageButton(this)
+        addImageButton.setImageResource(R.drawable.ic_add_box_black_24dp)
+        addImageButton.background=getDrawable(R.color.colorAlphaMax)
+        addImageButton.id=View.generateViewId()
+        addImageButton.layoutParams= ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+        addImageButton.visibility=View.INVISIBLE
     }
 
     private fun setListener() {
         editImageButton.setOnClickListener(onClickListener(editImageButton, false))
         doneImageButton.setOnClickListener(onClickListener(doneImageButton, false))
-        addImageButton.setOnClickListener(onClickListener(addImageButton,false))
+        addImageButton.setOnClickListener(onClickListener(addImageButton, false))
     }
 
     private fun onClickListener(view: View, isTagView: Boolean): View.OnClickListener {
@@ -206,25 +125,28 @@ class MemoInfoActivity : AppCompatActivity() {
                     memoEditText.visibility = View.VISIBLE
                     memoTextView.visibility = View.INVISIBLE
                     addImageButton.visibility = View.VISIBLE
-                    deleteButtonIdList.forEach{
-                        findViewById<ImageButton>(it).visibility=View.VISIBLE
+                    deleteButtonList.forEach { imageButton->
+                        imageButton.visibility = View.VISIBLE
                     }
                     isEditMode = true
                 }
             }
             R.id.memo_info_done_imageButton -> {
                 return View.OnClickListener {
-                    it.visibility = View.INVISIBLE
-                    editImageButton.visibility = View.VISIBLE
-                    titleEditText.visibility = View.INVISIBLE
-                    titleTextView.visibility = View.VISIBLE
-                    memoEditText.visibility = View.INVISIBLE
-                    memoTextView.visibility = View.VISIBLE
-                    addImageButton.visibility = View.INVISIBLE
-                    deleteButtonIdList.forEach{
-                        findViewById<ImageButton>(it).visibility=View.INVISIBLE
+                    if (validation()) {
+                        updateMemo()
+                        it.visibility = View.INVISIBLE
+                        editImageButton.visibility = View.VISIBLE
+                        titleEditText.visibility = View.INVISIBLE
+                        titleTextView.visibility = View.VISIBLE
+                        memoEditText.visibility = View.INVISIBLE
+                        memoTextView.visibility = View.VISIBLE
+                        addImageButton.visibility = View.INVISIBLE
+                        deleteButtonList.forEach { imageButton ->
+                            imageButton.visibility = View.INVISIBLE
+                        }
+                        isEditMode = false
                     }
-                    isEditMode = false
                 }
             }
             R.id.memo_info_add_image_imageButton -> {
@@ -245,14 +167,14 @@ class MemoInfoActivity : AppCompatActivity() {
                             tagViewIdList.removeAt(num)
                             tagLayout.removeView(it)
 
+                        }
                     }
-                }
 
-                }else{
+                } else {
                     return View.OnClickListener {
                         if (isEditMode) {
-                            val num = deleteButtonIdList.indexOf(it.id)
-                            deleteButtonIdList.remove(it.id)
+                            val num = deleteButtonList.indexOf(it)
+                            deleteButtonList.remove(it)
                             imagesLayout.removeView(findViewById(imageIdList[num]))
                             imageIdList.removeAt(num)
                             imageUriList.removeAt(num)
@@ -260,19 +182,19 @@ class MemoInfoActivity : AppCompatActivity() {
 
                             val constraintSet = ConstraintSet()
                             constraintSet.clone(imagesLayout)
-                            if(imageIdList.size == num)
-                                if(imageIdList.size==0)
-                                    constraintSet.connect(addImageButton.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 50)
+                            if (imageIdList.size == num)
+                                if (imageIdList.size == 0)
+                                    top2Top(constraintSet, addImageButton.id, ConstraintSet.PARENT_ID)
                                 else
-                                    constraintSet.connect(addImageButton.id, ConstraintSet.TOP, imageIdList[imageIdList.lastIndex], ConstraintSet.BOTTOM, 50)
-                            else if(num==0){
-                                if(imageIdList.size==0)
-                                    constraintSet.connect(addImageButton.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 50)
+                                    top2Bottom(constraintSet, addImageButton.id, imageIdList[imageIdList.lastIndex])
+                            else if (num == 0) {
+                                if (imageIdList.size == 0)
+                                    top2Top(constraintSet, addImageButton.id, ConstraintSet.PARENT_ID,0)
                                 else
-                                    constraintSet.connect(imageIdList[0], ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 50)
-                            }else{
-                                constraintSet.connect(imageIdList[num], ConstraintSet.TOP, imageIdList[num-1], ConstraintSet.BOTTOM, 50)
-                            }
+                                    top2Top(constraintSet, imageIdList[0], ConstraintSet.PARENT_ID)
+                            } else
+                                top2Bottom(constraintSet, imageIdList[num], imageIdList[num - 1])
+
                             constraintSet.applyTo(imagesLayout)
                         }
                     }
@@ -280,6 +202,110 @@ class MemoInfoActivity : AppCompatActivity() {
             }
         }
         return View.OnClickListener { }
+    }
+
+    private fun updateMemo(){
+        val memos = memosAndMemoTags.memos
+        memos.title=titleEditText.text.toString()
+        memos.memo =memoEditText.text.toString()
+        val memoTags = mutableListOf<MemoTags>()
+        for(i in tagIdList.indices)
+            memoTags.add(MemoTags(memos.memoId,tagIdList[i]))
+        val memoImages= mutableListOf<MemoImages>()
+        for(i in imageUriList.indices)
+            memoImages.add(MemoImages(memos.memoId,i,imageUriList[i]))
+        val memosAndMemoTags=MemosAndMemoTags()
+        memosAndMemoTags.memos=memos
+        memosAndMemoTags.memoTags=memoTags
+        setTitleAndMemo(memosAndMemoTags)
+        tagLayout.removeAllViews()
+        for(i in memoTags.indices)
+            setTags(memoTags[i].tagId)
+        val memosAndMemoImages=MemosAndMemoImages()
+        memosAndMemoImages.memos=memos
+        memosAndMemoImages.memoImages=memoImages
+        setImages(memosAndMemoImages)
+
+        thread {
+            db.memoTagsDao().update(memos.memoId, memoTags)
+            db.memoImagesDao().update(memos.memoId, memoImages)
+            db.memosDao().update(memos)
+        }
+    }
+
+    private fun setTitleAndMemo(memosAndMemoTags: MemosAndMemoTags) {
+        titleEditText.setText(memosAndMemoTags!!.memos.title)
+        titleTextView.text = memosAndMemoTags!!.memos.title
+        createdTextView.text = getString(
+            R.string.add_memo_created,
+            SimpleDateFormat("MM").format(memosAndMemoTags.memos.created).toInt(),
+            SimpleDateFormat("dd").format(memosAndMemoTags.memos.created).toInt(),
+            SimpleDateFormat("HH").format(memosAndMemoTags.memos.created).toInt(),
+            SimpleDateFormat("mm").format(memosAndMemoTags.memos.created).toInt()
+        )
+        memoEditText.setText(memosAndMemoTags.memos.memo)
+        memoTextView.text = memosAndMemoTags.memos.memo
+    }
+
+    private fun setTags(tagId: Long) {
+        db.tagsDao().getTagByTagId(tagId).observe(this, Observer {
+            val tagView = inflater.inflate(R.layout.tag, tagLayout, false)
+            tagView.findViewById<TextView>(R.id.tag_textView).text = it!!.name
+            tagView.id = View.generateViewId()
+            tagViewIdList.add(tagView.id)
+            tagView.setOnClickListener(onClickListener(tagView, true))
+            tagLayout.addView(tagView)
+        })
+    }
+
+    private fun setImages(memosAndMemoImages: MemosAndMemoImages) {
+        imagesLayout.removeAllViews()
+        imagesLayout.addView(addImageButton)
+        imageUriList = mutableListOf()
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(imagesLayout)
+        top2Top(constraintSet,addImageButton.id,ConstraintSet.PARENT_ID,0)
+        imagesLayout.setConstraintSet(constraintSet)
+        for (i in memosAndMemoImages!!.memoImages.indices) {
+            val uri = Uri.parse(memosAndMemoImages.memoImages[i].uri)
+            imageUriList.add(memosAndMemoImages.memoImages[i].uri)
+            try {
+                val path: String? = getPathFromUri(this, uri)
+                val file = File(path)
+                val inputStream = FileInputStream(file)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                if (bitmap != null) {
+                    val imageView = ImageView(this)
+                    imageView.setImageBitmap(bitmap)
+                    imageView.id = View.generateViewId()
+                    imageIdList.add(imageView.id)
+                    imagesLayout.addView(imageView)
+                    val deleteImageButton = ImageButton(this)
+                    deleteImageButton.setImageResource(R.drawable.ic_delete_black_24dp)
+                    deleteImageButton.background = getDrawable(R.color.colorAlphaMax)
+                    deleteImageButton.layoutParams =
+                        ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    deleteImageButton.id = View.generateViewId()
+                    deleteButtonList.add(deleteImageButton)
+                    deleteImageButton.visibility = View.INVISIBLE
+                    deleteImageButton.setOnClickListener(onClickListener(deleteImageButton, false))
+                    imagesLayout.addView(deleteImageButton)
+
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(imagesLayout)
+                    if (imageIdList.size == 1)
+                        top2Top(constraintSet, imageView.id, ConstraintSet.PARENT_ID)
+                    else
+                        top2Bottom(constraintSet, imageView.id, imageIdList[imageIdList.lastIndex - 1])
+                    top2Top(constraintSet, deleteImageButton.id, imageView.id, 0)
+                    left2Right(constraintSet, deleteImageButton.id, imageView.id, 20)
+                    top2Bottom(constraintSet, addImageButton.id, imageIdList[imageIdList.lastIndex])
+                    constraintSet.applyTo(imagesLayout)
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, e.printStackTrace().toString(), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -299,52 +325,24 @@ class MemoInfoActivity : AppCompatActivity() {
                         imageUriList.add(uri.toString())
                         val deleteImageButton = ImageButton(this)
                         deleteImageButton.setImageResource(R.drawable.ic_delete_black_24dp)
-                        deleteImageButton.background=getDrawable(R.color.colorAlphaMax)
-                        deleteImageButton.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-                        deleteImageButton.id=View.generateViewId()
-                        deleteButtonIdList.add(deleteImageButton.id)
-                        deleteImageButton.setOnClickListener(onClickListener(deleteImageButton,false))
+                        deleteImageButton.background = getDrawable(R.color.colorAlphaMax)
+                        deleteImageButton.layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                        deleteImageButton.id = View.generateViewId()
+                        deleteButtonList.add(deleteImageButton)
+                        deleteImageButton.setOnClickListener(onClickListener(deleteImageButton, false))
                         imagesLayout.addView(deleteImageButton)
                         val constraintSet = ConstraintSet()
                         constraintSet.clone(imagesLayout)
                         if (imageIdList.size == 1)
-                            constraintSet.connect(
-                                imageView.id,
-                                ConstraintSet.TOP,
-                                ConstraintSet.PARENT_ID,
-                                ConstraintSet.TOP,
-                                50
-                            )
+                            top2Top(constraintSet, imageView.id, ConstraintSet.PARENT_ID)
                         else
-                            constraintSet.connect(
-                                imageView.id,
-                                ConstraintSet.TOP,
-                                imageIdList[imageIdList.lastIndex - 1],
-                                ConstraintSet.BOTTOM,
-                                50
-                            )
-                        constraintSet.connect(
-                            deleteImageButton.id,
-                            ConstraintSet.TOP,
-                            imageView.id,
-                            ConstraintSet.TOP,
-                            0
-                        )
-                        constraintSet.connect(
-                            deleteImageButton.id,
-                            ConstraintSet.LEFT,
-                            imageView.id,
-                            ConstraintSet.RIGHT,
-                            10
-                        )
-
-                        constraintSet.connect(
-                            addImageButton.id,
-                            ConstraintSet.TOP,
-                            imageIdList[imageIdList.lastIndex],
-                            ConstraintSet.BOTTOM,
-                            20
-                        )
+                            top2Bottom(constraintSet, imageView.id, imageIdList[imageIdList.lastIndex - 1])
+                        top2Top(constraintSet, deleteImageButton.id, imageView.id, 0)
+                        left2Right(constraintSet, deleteImageButton.id, imageView.id, 20)
+                        top2Bottom(constraintSet, addImageButton.id, imageIdList[imageIdList.lastIndex])
                         constraintSet.applyTo(imagesLayout)
 
                     } catch (e: IOException) {
@@ -354,6 +352,50 @@ class MemoInfoActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun validation(): Boolean {
+        var flg = true
+        var str = "編集を終了できません。"
+        if (titleEditText.text.isEmpty()) {
+            str += "\nタイトルを入力してください。"
+            flg = false
+        }
+        if (tagIdList.isEmpty()) {
+            str += "\nタグを１つ以上設定してください。"
+            flg = false
+        }
+        return flg
+    }
+
+    private fun top2Top(constraintSet: ConstraintSet, childId: Int, parentId: Int, margin: Int = 50) {
+        constraintSet.connect(
+            childId,
+            ConstraintSet.TOP,
+            parentId,
+            ConstraintSet.TOP,
+            margin
+        )
+    }
+
+    private fun top2Bottom(constraintSet: ConstraintSet, childId: Int, parentId: Int, margin: Int = 50) {
+        constraintSet.connect(
+            childId,
+            ConstraintSet.TOP,
+            parentId,
+            ConstraintSet.BOTTOM,
+            margin
+        )
+    }
+
+    private fun left2Right(constraintSet: ConstraintSet, childId: Int, parentId: Int, margin: Int = 50) {
+        constraintSet.connect(
+            childId,
+            ConstraintSet.LEFT,
+            parentId,
+            ConstraintSet.RIGHT,
+            margin
+        )
     }
 
     private fun getPathFromUri(context: Context, uri: Uri): String? {
