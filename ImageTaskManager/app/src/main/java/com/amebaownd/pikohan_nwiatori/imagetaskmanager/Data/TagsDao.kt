@@ -8,6 +8,9 @@ interface TagsDao {
     @Query("SELECT * FROM Tags")
     fun getAllTags():LiveData<List<Tags>>
 
+    @Query("SELECT name FROM Tags")
+    fun getAllTagsName():LiveData<List<String>>
+
     @Query("SELECT * FROM Tags WHERE tagId=(:tagId)")
     fun getTagByTagId(tagId:Long):LiveData<Tags>
 
