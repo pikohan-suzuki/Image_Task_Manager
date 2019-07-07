@@ -191,6 +191,8 @@ class AddMemoFragment() : Fragment(), onSelectSearchedTags {
                         val image = MediaStore.Images.Media.getBitmap(view!!.context.contentResolver, uri)
                         val imageView = ImageView(view!!.context)
                         imageView.id = View.generateViewId()
+                        imageView.layoutParams= ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+                        imageView.scaleType=ImageView.ScaleType.FIT_CENTER
                         imageView.setImageBitmap(image)
 
 

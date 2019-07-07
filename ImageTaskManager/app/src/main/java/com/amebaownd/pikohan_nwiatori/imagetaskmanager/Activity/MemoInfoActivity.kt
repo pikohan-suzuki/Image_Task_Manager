@@ -26,6 +26,7 @@ import android.widget.*
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.*
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 import com.google.android.flexbox.FlexboxLayout
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -149,7 +150,7 @@ class MemoInfoActivity : AppCompatActivity() {
                     }
                 }
             }
-            R.id.memo_info_add_image_imageButton -> {
+            addImageButton.id-> {
                 return View.OnClickListener {
                     val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                         type = "image/*"
@@ -273,11 +274,14 @@ class MemoInfoActivity : AppCompatActivity() {
                 val path: String? = getPathFromUri(this, uri)
                 val file = File(path)
                 val inputStream = FileInputStream(file)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
+                val bitmap = BitmapFactory.decodeStream(BufferedInputStream(inputStream))
+                inputStream.close()
                 if (bitmap != null) {
                     val imageView = ImageView(this)
                     imageView.setImageBitmap(bitmap)
                     imageView.id = View.generateViewId()
+                    imageView.layoutParams= ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+                    imageView.scaleType=ImageView.ScaleType.FIT_CENTER
                     imageIdList.add(imageView.id)
                     imagesLayout.addView(imageView)
                     val deleteImageButton = ImageButton(this)
