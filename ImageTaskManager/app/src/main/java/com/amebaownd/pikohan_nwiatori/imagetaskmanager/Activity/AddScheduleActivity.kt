@@ -1,21 +1,13 @@
 package com.amebaownd.pikohan_nwiatori.imagetaskmanager.Activity
 
-import android.arch.lifecycle.Observer
 import android.arch.persistence.room.Room
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.AddScheduleTabAdapter
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.MemoRecyclerViewAdapter
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.TabAdapter
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.AppDatabase
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Fragment.AddMemoFragment
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
-import kotlinx.android.synthetic.main.activity_add_schedule.*
-import kotlinx.android.synthetic.main.activity_main.*
 
 class AddScheduleActivity : AppCompatActivity(){
 
@@ -28,7 +20,6 @@ class AddScheduleActivity : AppCompatActivity(){
       db = Room.databaseBuilder(this, AppDatabase::class.java, "database").build()
 
         setTabLayout()
-
     }
 
     private fun setTabLayout() {
