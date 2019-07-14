@@ -17,6 +17,9 @@ interface TagsDao {
     @Query("SELECT * FROM Tags WHERE name=(:name)")
     fun getTagByName(name:String):LiveData<Tags>
 
+    @Query("SELECT name FROM Tags WHERE tagID=(:tagId)")
+    fun getNameByTagId(tagId:Long):LiveData<String>
+
     @Query("SELECT COUNT(*) FROM Tags WHERE name=(:name)")
     fun getCountByName(name:String):LiveData<Int>
 
