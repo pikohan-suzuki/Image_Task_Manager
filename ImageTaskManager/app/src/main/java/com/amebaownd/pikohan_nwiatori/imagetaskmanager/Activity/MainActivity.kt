@@ -5,9 +5,7 @@ import android.animation.PropertyValuesHolder
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.TabAdapter
@@ -41,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         array[2][1] = PropertyValuesHolder.ofFloat("translationY", 0f, -radius * sin(PI * 180 / 180).toFloat())
         val alpha = PropertyValuesHolder.ofFloat("alpha", 0f, 1f)
         for (i in array.indices) {
-            visiable(buttons[i])
+            visible(buttons[i])
             val objectAnimator: ObjectAnimator =
                 ObjectAnimator.ofPropertyValuesHolder(buttons[i], array[i][0], array[i][1], alpha)
             objectAnimator.setDuration(time)
@@ -71,7 +69,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun visiable(view: View) {
+    private fun visible(view: View) {
         view.visibility = View.VISIBLE
     }
 
