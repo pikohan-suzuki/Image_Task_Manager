@@ -13,7 +13,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
 
-        <activity android:name=".Activity.PermisionActivity">
+        <activity android:name=".Activity.PermissionActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
