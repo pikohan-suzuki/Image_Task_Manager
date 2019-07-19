@@ -33,7 +33,7 @@ import java.io.IOException
 import java.lang.Exception
 import kotlin.concurrent.thread
 
-class MemoInfoActivity : AppCompatActivity(){
+class MemoInfoActivity : AppCompatActivity() {
 
     private lateinit var db: AppDatabase
     private lateinit var inflater: LayoutInflater
@@ -48,7 +48,7 @@ class MemoInfoActivity : AppCompatActivity(){
     private lateinit var memoTextView: TextView
 
     private lateinit var tagLayout: FlexboxLayout
-    private lateinit var searchTagEditText:AutoCompleteTextView
+    private lateinit var searchTagEditText: AutoCompleteTextView
     private lateinit var imagesLayout: ConstraintLayout
     private lateinit var addImageButton: ImageButton
 
@@ -67,31 +67,26 @@ class MemoInfoActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_memo_info)
 
-        val memoId = intent.extras.getLong("memoId")
-        val tagIdArray = intent.extras.getLongArray("tagIdList")
-//        for (i in tagIdArray.indices)
-//            tagIdList.add(tagIdArray[i])
+        val memoId = intent?.extras?.getLong("memoId") ?: 1
 
         inflater = LayoutInflater.from(this)
-        db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database").build()
+        db = Room.databaseBuilder(this, AppDatabase::class.java, "database").build()
         setViews()
-        setSearchTagAdapter()
-        setListener()
+        setSearchTagAdapter()   //タグ検索のアダプターを設定
+        setListener()           //listenerの設定
 
+        //タグの設定
         db.memosDao().loadMemosAndMemoTagsByMemoId(memoId).observe(this, Observer {
-                tagLayout.removeAllViews()
-                memosAndMemoTags = it!!
-                for (i in it.memoTags.indices) {
-                    tagIdList.add(it.memoTags[i].tagId)
-                    setTags(it.memoTags[i].tagId)
-                }
-                setTitleAndMemo(it)
+            tagLayout.removeAllViews()
+            memosAndMemoTags = it!!
+            for (i in it.memoTags.indices) {
+                tagIdList.add(it.memoTags[i].tagId)
+                setTags(it.memoTags[i].tagId)
+            }
+            setTitleAndMemo(it)
         })
 
-//        for (i in tagIdList!!.indices)
-//            setTags(tagIdList[i])
-
-
+        //画像の設定
         db.memosDao().loadMemosAndMemoImagesByMemoId(memoId).observe(this, Observer {
             memosAndMemoImages = it!!
             setImages(it)
@@ -101,21 +96,21 @@ class MemoInfoActivity : AppCompatActivity(){
     private fun setViews() {
         editImageButton = findViewById(R.id.memo_info_edit_imageButton)
         doneImageButton = findViewById(R.id.memo_info_done_imageButton)
-
         titleEditText = findViewById(R.id.memo_info_title_editText)
         titleTextView = findViewById(R.id.memo_info_title_textVIew)
         createdTextView = findViewById(R.id.memo_info_created_textView)
         memoEditText = findViewById(R.id.memo_info_memo_editText)
         memoTextView = findViewById(R.id.memo_info_memo_textView)
         tagLayout = findViewById(R.id.memo_info_show_tags_flexboxLayout)
-        searchTagEditText=findViewById(R.id.memo_info_search_tags_editText)
+        searchTagEditText = findViewById(R.id.memo_info_search_tags_editText)
         imagesLayout = findViewById(R.id.memo_info_image_layout)
         addImageButton = ImageButton(this)
         addImageButton.setImageResource(R.drawable.ic_add_box_black_24dp)
-        addImageButton.background=getDrawable(R.color.colorAlphaMax)
-        addImageButton.id=View.generateViewId()
-        addImageButton.layoutParams= ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-        addImageButton.visibility=View.INVISIBLE
+        addImageButton.background = getDrawable(R.color.colorAlphaMax)
+        addImageButton.id = View.generateViewId()
+        addImageButton.layoutParams =
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        addImageButton.visibility = View.INVISIBLE
     }
 
     private fun setListener() {
@@ -124,7 +119,7 @@ class MemoInfoActivity : AppCompatActivity(){
         addImageButton.setOnClickListener(onClickListener(addImageButton, false))
         searchTagEditText.setOnItemClickListener { adapterView, view, position, id ->
             db.tagsDao().getTagByName((view as TextView).text.toString()).observe(this, Observer {
-                if(!tagIdList.contains(it!!.tagId)) {
+                if (!tagIdList.contains(it!!.tagId)) {
                     tagIdList.add(it.tagId)
                     setTags(it.tagId)
                 }
@@ -132,9 +127,9 @@ class MemoInfoActivity : AppCompatActivity(){
         }
     }
 
-    private fun setSearchTagAdapter(){
+    private fun setSearchTagAdapter() {
         db.tagsDao().getAllTagsName().observe(this, Observer {
-            searchTagEditText.setAdapter(  ArrayAdapter(this,android.R.layout.simple_list_item_1,it))
+            searchTagEditText.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, it))
         })
     }
 
@@ -149,10 +144,8 @@ class MemoInfoActivity : AppCompatActivity(){
                     memoEditText.visibility = View.VISIBLE
                     memoTextView.visibility = View.INVISIBLE
                     addImageButton.visibility = View.VISIBLE
-                    deleteButtonList.forEach { imageButton->
-                        imageButton.visibility = View.VISIBLE
-                    }
-                    searchTagEditText.visibility=View.VISIBLE
+                    deleteButtonList.forEach { imageButton -> imageButton.visibility = View.VISIBLE }
+                    searchTagEditText.visibility = View.VISIBLE
                     isEditMode = true
                 }
             }
@@ -167,15 +160,13 @@ class MemoInfoActivity : AppCompatActivity(){
                         memoEditText.visibility = View.INVISIBLE
                         memoTextView.visibility = View.VISIBLE
                         addImageButton.visibility = View.INVISIBLE
-                        deleteButtonList.forEach { imageButton ->
-                            imageButton.visibility = View.INVISIBLE
-                        }
-                        searchTagEditText.visibility=View.GONE
+                        deleteButtonList.forEach { imageButton -> imageButton.visibility = View.INVISIBLE }
+                        searchTagEditText.visibility = View.GONE
                         isEditMode = false
                     }
                 }
             }
-            addImageButton.id-> {
+            addImageButton.id -> {
                 return View.OnClickListener {
                     val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                         type = "image/*"
@@ -192,10 +183,8 @@ class MemoInfoActivity : AppCompatActivity(){
                             tagIdList.removeAt(num)
                             tagViewIdList.removeAt(num)
                             tagLayout.removeView(it)
-
                         }
                     }
-
                 } else {
                     return View.OnClickListener {
                         if (isEditMode) {
@@ -215,41 +204,39 @@ class MemoInfoActivity : AppCompatActivity(){
                                     top2Bottom(constraintSet, addImageButton.id, imageIdList[imageIdList.lastIndex])
                             else if (num == 0) {
                                 if (imageIdList.size == 0)
-                                    top2Top(constraintSet, addImageButton.id, ConstraintSet.PARENT_ID,0)
+                                    top2Top(constraintSet, addImageButton.id, ConstraintSet.PARENT_ID, 0)
                                 else
                                     top2Top(constraintSet, imageIdList[0], ConstraintSet.PARENT_ID)
                             } else
                                 top2Bottom(constraintSet, imageIdList[num], imageIdList[num - 1])
-
                             constraintSet.applyTo(imagesLayout)
                         }
                     }
                 }
             }
         }
-        return View.OnClickListener { }
     }
 
-    private fun updateMemo(){
+    private fun updateMemo() {
         val memos = memosAndMemoTags.memos
-        memos.title=titleEditText.text.toString()
-        memos.memo =memoEditText.text.toString()
+        memos.title = titleEditText.text.toString()
+        memos.memo = memoEditText.text.toString()
         val memoTags = mutableListOf<MemoTags>()
-        for(i in tagIdList.indices)
-            memoTags.add(MemoTags(memos.memoId,tagIdList[i]))
-        val memoImages= mutableListOf<MemoImages>()
-        for(i in imageUriList.indices)
-            memoImages.add(MemoImages(memos.memoId,i,imageUriList[i]))
-        val memosAndMemoTags=MemosAndMemoTags()
-        memosAndMemoTags.memos=memos
-        memosAndMemoTags.memoTags=memoTags
+        for (i in tagIdList.indices)
+            memoTags.add(MemoTags(memos.memoId, tagIdList[i]))
+        val memoImages = mutableListOf<MemoImages>()
+        for (i in imageUriList.indices)
+            memoImages.add(MemoImages(memos.memoId, i, imageUriList[i]))
+        val memosAndMemoTags = MemosAndMemoTags()
+        memosAndMemoTags.memos = memos
+        memosAndMemoTags.memoTags = memoTags
         setTitleAndMemo(memosAndMemoTags)
         tagLayout.removeAllViews()
-        for(i in memoTags.indices)
+        for (i in memoTags.indices)
             setTags(memoTags[i].tagId)
-        val memosAndMemoImages=MemosAndMemoImages()
-        memosAndMemoImages.memos=memos
-        memosAndMemoImages.memoImages=memoImages
+        val memosAndMemoImages = MemosAndMemoImages()
+        memosAndMemoImages.memos = memos
+        memosAndMemoImages.memoImages = memoImages
         setImages(memosAndMemoImages)
 
         thread {
@@ -290,7 +277,7 @@ class MemoInfoActivity : AppCompatActivity(){
         imageUriList = mutableListOf()
         val constraintSet = ConstraintSet()
         constraintSet.clone(imagesLayout)
-        top2Top(constraintSet,addImageButton.id,ConstraintSet.PARENT_ID,0)
+        top2Top(constraintSet, addImageButton.id, ConstraintSet.PARENT_ID, 0)
         imagesLayout.setConstraintSet(constraintSet)
         for (i in memosAndMemoImages!!.memoImages.indices) {
             val uri = Uri.parse(memosAndMemoImages.memoImages[i].uri)
@@ -305,8 +292,9 @@ class MemoInfoActivity : AppCompatActivity(){
                     val imageView = ImageView(this)
                     imageView.setImageBitmap(bitmap)
                     imageView.id = View.generateViewId()
-                    imageView.layoutParams= ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-                    imageView.scaleType=ImageView.ScaleType.FIT_CENTER
+                    imageView.layoutParams =
+                        ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    imageView.scaleType = ImageView.ScaleType.FIT_CENTER
                     imageIdList.add(imageView.id)
                     imagesLayout.addView(imageView)
                     val deleteImageButton = ImageButton(this)
@@ -348,7 +336,6 @@ class MemoInfoActivity : AppCompatActivity(){
                         imageView.id = View.generateViewId()
                         imageView.setImageBitmap(image)
 
-
                         imagesLayout.addView(imageView)
                         imageIdList.add(imageView.id)
                         imageUriList.add(uri.toString())
@@ -377,7 +364,6 @@ class MemoInfoActivity : AppCompatActivity(){
                     } catch (e: IOException) {
                         e.printStackTrace();
                     }
-
                 }
             }
         }

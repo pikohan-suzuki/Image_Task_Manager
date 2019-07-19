@@ -14,15 +14,14 @@ import android.widget.Toast
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.TagRecyclerViewAdapter
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.AppDatabase
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.Tags
-import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.Tasks
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 import kotlin.concurrent.thread
 
 class AddTagActivity : AppCompatActivity() {
-    lateinit var db: AppDatabase
-    lateinit var addImageButton: ImageButton
-    lateinit var addEditText: EditText
-    lateinit var recyclerView: RecyclerView
+    private lateinit var db: AppDatabase
+    private lateinit var addImageButton: ImageButton
+    private lateinit var addEditText: EditText
+    private lateinit var recyclerView: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_tag)
@@ -30,7 +29,6 @@ class AddTagActivity : AppCompatActivity() {
         db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database").build()
 
         setViews()
-
         db.tagsDao().getAllTags().observe(this, Observer<List<Tags>> {
             recyclerView.adapter = TagRecyclerViewAdapter(this, it)
         })
@@ -44,7 +42,6 @@ class AddTagActivity : AppCompatActivity() {
                     if (addEditText.text.toString().isEmpty()) {
                         Toast.makeText(this, "追加するタグ名を入力してください。", Toast.LENGTH_SHORT).show()
                     } else {
-
                         db.tagsDao().getCountByName(addEditText.text.toString()).observe(this, Observer<Int> {
                             if (it != null) {
                                 if (it == 0) {
@@ -82,7 +79,6 @@ class AddTagActivity : AppCompatActivity() {
         addEditText = findViewById(R.id.add_tag_add_editText)
         addEditText.setOnClickListener(onClickListener(addEditText))
         recyclerView = findViewById(R.id.add_tag_recyclerView)
-        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        recyclerView.layoutManager=layoutManager
+        recyclerView.layoutManager= LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }
 }
