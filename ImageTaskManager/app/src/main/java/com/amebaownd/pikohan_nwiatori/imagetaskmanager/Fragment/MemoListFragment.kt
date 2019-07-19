@@ -12,8 +12,11 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.TextView
+import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.GetTagName
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Adapter.MemoRecyclerViewAdapter
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.AppDatabase
+import com.amebaownd.pikohan_nwiatori.imagetaskmanager.Data.MemosAndMemoTags
 import com.amebaownd.pikohan_nwiatori.imagetaskmanager.R
 
 interface OnSpinnerItemSelected{
@@ -21,10 +24,17 @@ interface OnSpinnerItemSelected{
     fun setSortedByTitleRecyclerViewAdapter()
 }
 
-class MemoListFragment(): Fragment(),OnSpinnerItemSelected{
+class MemoListFragment(): Fragment(),OnSpinnerItemSelected,GetTagName{
+    override fun getTagNameById(tagId: Long,textView: TextView) {
+        db.tagsDao().getNameByTagId(tagId).observe(viewLifecycleOwner, Observer {
+            textView.text=it
+        })
+    }
+
     override fun setSortedByCreatedRecyclerViewAdapter() {
         db.memosDao().loadMemosAndMemoTagsSortByCreated().observe(viewLifecycleOwner, Observer {
             val adapter = MemoRecyclerViewAdapter(view!!.context,it)
+            adapter.setListener(this)
             recyclerView.adapter=adapter
         })
     }
@@ -32,6 +42,7 @@ class MemoListFragment(): Fragment(),OnSpinnerItemSelected{
     override fun setSortedByTitleRecyclerViewAdapter() {
         db.memosDao().loadMemosAndMemoTagsSortByTitle().observe(viewLifecycleOwner, Observer {
             val adapter = MemoRecyclerViewAdapter(view!!.context,it)
+            adapter.setListener(this)
             recyclerView.adapter=adapter
         })
     }
