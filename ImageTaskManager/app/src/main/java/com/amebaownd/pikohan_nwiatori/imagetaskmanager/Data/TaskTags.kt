@@ -14,6 +14,6 @@ import android.arch.persistence.room.PrimaryKey
             childColumns = ["tagId"],
             onDelete = ForeignKey.CASCADE)])
 data class TaskTags constructor(
-    val tagId:Long,
-    val taskId:Long
+    var tagId:Long=0,
+    var taskId:Long=0
 )
