@@ -151,7 +151,7 @@ class AddMemoFragment() : Fragment(), onSelectSearchedTags {
                         thread {
 
                             val time = System.currentTimeMillis()
-                            val memo = Memos().apply {
+                                        val memo = Memos().apply {
                                 title = titleEditText.text.toString()
                                 created = time
                                 memo = memoEditText.text.toString()
