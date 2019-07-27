@@ -88,13 +88,15 @@ class MainActivity : AppCompatActivity() {
             R.id.add_task_button -> {
                 return View.OnClickListener {
                     val intent = Intent(this, AddScheduleActivity::class.java)
-                    startActivity(intent)
+                    intent.putExtra("is_task",1)
+                    startActivityForResult(intent,102)
                 }
             }
             R.id.add_memo_button -> {
                 return View.OnClickListener {
                     val intent = Intent(this, AddScheduleActivity::class.java)
-                    startActivity(intent)
+                    intent.putExtra("is_task",0)
+                    startActivityForResult(intent,102)
                 }
             }
             R.id.add_tag_button -> {
@@ -127,5 +129,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.add_task_button).setOnClickListener(onClickListener(findViewById<ImageButton>(R.id.add_task_button)))
         findViewById<ImageButton>(R.id.add_memo_button).setOnClickListener(onClickListener(findViewById<ImageButton>(R.id.add_memo_button)))
         findViewById<ImageButton>(R.id.add_tag_button).setOnClickListener(onClickListener(findViewById<ImageButton>(R.id.add_tag_button)))
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode==102){
+            setTabLayout()
+        }
     }
 }
